@@ -5,8 +5,8 @@
 # ./chat.py run
 # ./chat.py exit
 #
-# ./chat.py repl username
-# ./chat.py send receiver[,receiver ...]  message
+# ./chat.py repl username [channel]
+# ./chat.py send recipient[,recipient ...]  message
 #
 # HOST_NAME="${HOSTNAME%%.*}"
 # PID="$(pgrep -f './chat.py' | head -n1)"
@@ -16,7 +16,7 @@
 #
 # Notes
 # ~~~~~
-# receivers: channel(s) or @username(s): @all, @here
+# recipients: channel(s) or @username(s): @all, @here
 #
 # To Do
 # ~~~~~
@@ -47,7 +47,7 @@ class Chat(aiko.Actor):
         pass
 
     @abstractmethod
-    def send_message(self, receivers, message):
+    def send_message(self, recipients, message):
         pass
 
 class ChatImpl(aiko.Actor):
@@ -58,18 +58,18 @@ class ChatImpl(aiko.Actor):
     def exit(self):
         aiko.process.terminate()
 
-    def send_message(self, receivers, message):
-        self.logger.info(f"send_message({receivers} {message})")
+    def send_message(self, recipients, message):
+        self.logger.info(f"send_message({recipients} {message})")
 
 # --------------------------------------------------------------------------- #
 
 def get_service_filter():
     return aiko.ServiceFilter("*", _ACTOR_TYPE, _PROTOCOL, "*", "*", "*")
 
-def parse_receivers(receivers):
-    if not receivers:
+def parse_recipients(recipients):
+    if not recipients:
         return []
-    return list(filter(None, map(str.strip, receivers.split(","))))
+    return list(filter(None, map(str.strip, recipients.split(","))))
 
 # --------------------------------------------------------------------------- #
 
@@ -98,22 +98,22 @@ def run_command():
     aiko.process.run()
 
 @main.command(name="send")
-@click.argument("receivers", type=str, required=True, default=None)
+@click.argument("recipients", type=str, required=True, default=None)
 @click.argument("message", type=str, required=True, default=None)
 
-def send_command(receivers, message):
-    """Send message to receivers (channels and/or users)
+def send_command(recipients, message):
+    """Send message to recipients (channels and/or users)
 
-    ./chat.py send RECEIVERS MESSAGE
+    ./chat.py send RECIPIENTS MESSAGE
 
     \b
-    • RECEIVERS: List of one or more (comma separated) channels or @usernames
-    • MESSAGE:   Data to be sent to the receivers
+    • RECIPIENTS: List of one or more (comma separated) channels or @usernames
+    • MESSAGE:    Data to be sent to the recipients
     """
 
-    receiver_list = parse_receivers(receivers)
+    recipient_list = parse_recipients(recipients)
     aiko.do_command(Chat, get_service_filter(),
-        lambda chat: chat.send_message(receiver_list, message), terminate=True)
+        lambda chat: chat.send_message(recipient_list, message), terminate=True)
     aiko.process.run()
 
 if __name__ == "__main__":
