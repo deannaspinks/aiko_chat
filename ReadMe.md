@@ -2,16 +2,18 @@
 
 ## Overview
 
-Demonstration of using Aiko Services to implement a group discussion frontend and backend server.
+An example of using Aiko Services to implement a group discussion frontend and backend server.
 
-The Aiko Chat frontend CLI can be used to start, interact with and stop the backend server.
+The Aiko Chat frontend CLI can be used to start, interact with and stop the Aiko Chat backend server.
+
+Multiple copies of the Aiko Chat CLI REPL session can be running at the same time.
 
 ![](aiko_chat_diagram.png)
 
-## Set-up development environment
+## Set-up the development environment
 
 ```bash
-python3 -m venv venv
+python3 -m venv venv      # Create a new Python virtual environment
 source venv/bin/activate
 
 git clone https://github.com/geekscape/aiko_services.git
@@ -22,34 +24,60 @@ cd ..
 git clone https://github.com/geekscape/aiko_chat.git
 cd aiko_chat
 pip install -e .
+cd ..
 ```
 
 ## Usage
-An MQTT server, e.g `mosquitto` and the `Aiko Registrar` need to be already running ... see [this script](https://github.com/geekscape/aiko_services/blob/master/scripts/system_start.sh).
+An MQTT server, e.g `mosquitto` and the `Aiko Services Registrar` need to be already running ... see [this script](https://github.com/geekscape/aiko_services/blob/master/scripts/system_start.sh).
+
+The MQTT server `mosquitto` can be running on any host, either locally or accessible over the Internet.
+
+The `Aiko Services Registrar` can also be running anywhere ... and it is easiest to start by running it locally.
+
+For every process involved, make sure that the `AIKO_MQTT_HOST` environment variable references the correct (same) MQTT server host.
 
 Each of the following terminal sessions needs to be operating in the development environment's **Python virtual environment**.
 
 ### Start Aiko Dashboard for monitoring and diagnosis
 
+You may leave the Aiko Services Dashboard running ... and also watch the Aiko Chat Service in operation.
+
 ```bash
 # Terminal session 1
-$ aiko_dashboard
+$ source venv/bin/activate
+$ aiko_dashboard  # Check that mosquitto and Aiko Registrar are running correctly
 ```
 
 ### Start the Aiko Chat Service
 ```bash
 # Terminal session 2
-$ cd src/aiko_chat
-$ ./chat.py run  # Blocks until the Aiko Chat Service is terminated
+$ source venv/bin/activate
+$ cd aiko_chat/src/aiko_chat
+$ ./chat.py run       # Block until the Aiko Chat Service is terminated
 ```
 
-### Send a message, then terminate the Aiko Chat Service
-When the message is sent, the resulting output should appear on Terminal session 2 (above)
+### Send messages via the Aiko Chat Service
+As messages are sent, the log output should also appear on Terminal session 2 (above)
 
 ```bash
 # Terminal session 3
-$ cd src/aiko_chat
-$ ./chat.py send r0,r1 message  # Sends a "message" to recipients "r0,r1,r2"
+$ source venv/bin/activate
+$ cd aiko_chat/src/aiko_chat
+$ ./chat.py repl      # Start Chat CLI REPL session
+Type "/exit" to exit
+Connected    chat_server: aiko/host/123/1
+> hello               # Message sent to send_message(recipients, message)
+['general']: hello    # Reponse received from Aiko Chat Service
+> goodbye
+['general']: goodbye
+> /exit               # Exit Chat CLI REPL session
+s the Aiko Chat Service process
+```
 
-$ ./chat.py exit  # Terminates the AIko Chat Service process
+### Stop the Aiko Chat Service
+```bash
+# Terminal session 3
+$ source venv/bin/activate
+$ cd aiko_chat/src/aiko_chat
+$ ./chat.py exit      # Terminate the Aiko Chat Service process
 ```

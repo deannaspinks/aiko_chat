@@ -22,6 +22,10 @@
 #
 # To Do
 # ~~~~~
+# - Implement "ChatServer.topic_out" Dependency link ...
+#   - "ChatServer.topic_out" --[function_call]--> "ChatREPL.topic_in"
+#
+# - Add send_message() properties: timestamp, username
 # - UI: CLI (REPL), TUI (Dashboard plug-in), Web
 #   - Implement "/commands", e.g "/help"
 #   - Refactor standard tty REPL ("scheme_tty.py")
@@ -33,12 +37,14 @@
 from abc import abstractmethod
 import click
 import signal
+from typing import Iterable, List
 
 import aiko_services as aiko
 from aiko_chat import FileHistoryStore, ReplSession
 
 __all__ = ["ChatREPL", "ChatREPLImpl", "ChatServer", "ChatServerImpl"]
 
+_CHANNEL_NAME = "general"  # TODO: Support multiple channels (CRUD)
 _HISTORY_PATHNAME = None
 _VERSION = 0
 
@@ -54,7 +60,12 @@ def get_server_service_filter():
     return aiko.ServiceFilter(
         "*", _ACTOR_SERVER, _PROTOCOL_SERVER, "*", "*", "*")
 
-def parse_recipients(recipients):
+def generate_recipients(recipients: Iterable[str] | None) -> str:
+    if not recipients:
+        return ""
+    return ",".join(recipient.strip() for recipient in recipients)
+
+def parse_recipients(recipients: str | None) -> List[str]:
     if not recipients:
         return []
     return list(filter(None, map(str.strip, recipients.split(","))))
@@ -94,12 +105,14 @@ class ChatREPLImpl(aiko.Actor):
             aiko.process.terminate()
         else:
             if self.chat_server:
-                recipients = ["@all"]
+                recipients = [_CHANNEL_NAME]
                 self.chat_server.send_message(recipients, command)
 
     def discovery_add_handler(self, service_details, service):
         self.print(f"Connected    {service_details[1]}: {service_details[0]}")
         self.chat_server = service
+        server_topic_out = f"{service_details[0]}/out"
+        self.add_message_handler(self.server_message_handler, server_topic_out)
 
     def discovery_remove_handler(self, service_details):
         self.print(f"Disconnected {service_details[1]}: {service_details[0]}")
@@ -107,6 +120,9 @@ class ChatREPLImpl(aiko.Actor):
 
     def join(self):
         self.repl_session.join()  # wait until background thread has cleaned-up
+
+    def server_message_handler(self, _aiko, topic, payload_in):
+        self.print(payload_in)
 
     def on_sigint(self, signum, frame):
         self.repl_session.stop()
@@ -141,7 +157,10 @@ class ChatServerImpl(aiko.Actor):
         aiko.process.terminate()
 
     def send_message(self, recipients, message):
-        self.logger.info(f"send_message({recipients} {message})")
+        recipients = generate_recipients(recipients)
+        payload_out = f"{recipients}: {message}"
+        self.logger.info(f"send_message({payload_out})")
+        aiko.process.message.publish(self.topic_out, payload_out)
 
 # --------------------------------------------------------------------------- #
 # Aiko Chat CLI: Distributed Actor commands
