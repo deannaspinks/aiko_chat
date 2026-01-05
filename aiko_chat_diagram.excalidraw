@@ -202,20 +202,20 @@
       "index": "Zz",
       "roundness": null,
       "seed": 833344281,
-      "version": 527,
-      "versionNonce": 718063703,
+      "version": 549,
+      "versionNonce": 1802197081,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1766718622223,
+      "updated": 1766732307210,
       "link": null,
       "locked": false,
-      "text": " Chat CLI                 (frontend)\n\n$ ./chat.py run",
+      "text": " Chat CLI                 (frontend)\n\n$ aiko_chat run",
       "fontSize": 20,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": "TZ4wQ0Vc-EDZcMp1GDzB6",
-      "originalText": " Chat CLI                 (frontend)\n\n$ ./chat.py run",
+      "originalText": " Chat CLI                 (frontend)\n\n$ aiko_chat run",
       "autoResize": true,
       "lineHeight": 1.25
     },
@@ -241,20 +241,16 @@
         "type": 3
       },
       "seed": 1663625849,
-      "version": 340,
-      "versionNonce": 1885025431,
+      "version": 343,
+      "versionNonce": 2036283447,
       "isDeleted": false,
       "boundElements": [
         {
           "type": "text",
           "id": "9mGtr-K8DNyB5QCharfND"
-        },
-        {
-          "id": "t-rhS-kQ5vD3HGBIOjIvN",
-          "type": "arrow"
         }
       ],
-      "updated": 1766718644975,
+      "updated": 1766732363386,
       "link": null,
       "locked": false
     },
@@ -278,20 +274,20 @@
       "index": "Zz2",
       "roundness": null,
       "seed": 1198994265,
-      "version": 575,
-      "versionNonce": 1266241849,
+      "version": 585,
+      "versionNonce": 17668889,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1766718644975,
+      "updated": 1766732330713,
       "link": null,
       "locked": false,
-      "text": " Chat CLI                 (frontend)\n\n$ ./chat.py exit",
+      "text": " Chat CLI                 (frontend)\n\n$ aiko_chat exit",
       "fontSize": 20,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": "7VzivW3VB949mn48c26AP",
-      "originalText": " Chat CLI                 (frontend)\n\n$ ./chat.py exit",
+      "originalText": " Chat CLI                 (frontend)\n\n$ aiko_chat exit",
       "autoResize": true,
       "lineHeight": 1.25
     },
@@ -317,8 +313,8 @@
         "type": 3
       },
       "seed": 663586585,
-      "version": 818,
-      "versionNonce": 394591001,
+      "version": 820,
+      "versionNonce": 1147937881,
       "isDeleted": false,
       "boundElements": [
         {
@@ -326,7 +322,7 @@
           "id": "ywE_bGKVI-ErhRpnaQm-E"
         }
       ],
-      "updated": 1766718136007,
+      "updated": 1766732409354,
       "link": null,
       "locked": false
     },
@@ -350,20 +346,20 @@
       "index": "Zz8",
       "roundness": null,
       "seed": 442448889,
-      "version": 660,
-      "versionNonce": 1636670585,
+      "version": 675,
+      "versionNonce": 1945645369,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1766718726698,
+      "updated": 1766732409355,
       "link": null,
       "locked": false,
-      "text": " Chat CLI REPL session   (frontend)\n\n$ ./chat.py repl\nType \"/exit\" to exit\nConnected chat_server: aiko/nomad/123/1\n> Aloha !\n  [general]: Aloha !\n> /exit\n",
+      "text": " Chat CLI REPL session   (frontend)\n\n$ aiko_chat repl\nType \":exit\" to exit\nConnected chat_server: aiko/nomad/123/1\n> Aloha !\n  [general]: Aloha !\n> :exit\n",
       "fontSize": 20,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": "c-7zEGAQLxyrcOXRmrMCo",
-      "originalText": " Chat CLI REPL session   (frontend)\n\n$ ./chat.py repl\nType \"/exit\" to exit\nConnected chat_server: aiko/nomad/123/1\n> Aloha !\n  [general]: Aloha !\n> /exit\n",
+      "originalText": " Chat CLI REPL session   (frontend)\n\n$ aiko_chat repl\nType \":exit\" to exit\nConnected chat_server: aiko/nomad/123/1\n> Aloha !\n  [general]: Aloha !\n> :exit\n",
       "autoResize": true,
       "lineHeight": 1.25
     },
@@ -816,10 +812,10 @@
     {
       "id": "Fu7e5oZpMohgNpFXvgJfO",
       "type": "arrow",
-      "x": 560.4051018752716,
-      "y": 841.5040989531018,
-      "width": 640,
-      "height": 0,
+      "x": 500,
+      "y": 840,
+      "width": 700.4051018752716,
+      "height": 1.5040989531017885,
       "angle": 0,
       "strokeColor": "#f08c00",
       "backgroundColor": "transparent",
@@ -835,11 +831,11 @@
         "type": 2
       },
       "seed": 747217145,
-      "version": 764,
-      "versionNonce": 1039562039,
+      "version": 884,
+      "versionNonce": 116307223,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1766718328873,
+      "updated": 1766732428086,
       "link": null,
       "locked": false,
       "points": [
@@ -848,8 +844,8 @@
           0
         ],
         [
-          640,
-          0
+          700.4051018752716,
+          1.5040989531017885
         ]
       ],
       "startBinding": null,
@@ -862,10 +858,10 @@
     {
       "id": "t-rhS-kQ5vD3HGBIOjIvN",
       "type": "arrow",
-      "x": 571.6868070097996,
-      "y": 1019.2415371611096,
-      "width": 628.9429074057953,
-      "height": 2.0381113149285284,
+      "x": 600,
+      "y": 1020,
+      "width": 600,
+      "height": 0,
       "angle": 0,
       "strokeColor": "#f08c00",
       "backgroundColor": "transparent",
@@ -881,11 +877,11 @@
         "type": 2
       },
       "seed": 776847001,
-      "version": 838,
-      "versionNonce": 1032930393,
+      "version": 862,
+      "versionNonce": 581117207,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1766718644975,
+      "updated": 1766732383920,
       "link": null,
       "locked": false,
       "points": [
@@ -894,18 +890,11 @@
           0
         ],
         [
-          628.9429074057953,
-          2.0381113149285284
+          600,
+          0
         ]
       ],
-      "startBinding": {
-        "elementId": "7VzivW3VB949mn48c26AP",
-        "mode": "inside",
-        "fixedPoint": [
-          0.3901972886586355,
-          0.8146063195424658
-        ]
-      },
+      "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
       "endArrowhead": "arrow",

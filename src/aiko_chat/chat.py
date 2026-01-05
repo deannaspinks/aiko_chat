@@ -15,24 +15,38 @@
 # TOPIC="aiko/$HOST_NAME/$PID/1/in"
 #
 # mosquitto_pub -t $TOPIC -m "(send_message @all hello)"
-#
 # Notes
 # ~~~~~
 # recipients: channel(s) or @username(s): @all, @here
 #
 # To Do
 # ~~~~~
+# *** Create a simple bot ... initially, no LLM, then basic Ollama LLM :)
+#
+# * Fix: Discover ChatServer via "owner" field ... support multiple concurrent
+#   - Default search "owner" should be "*"
+#   - Default "username" should be the "$USERNAME", override with REPL argument
+#
+# - Support multiple channels via HyperSpace ?
+#   * Create Category and Channels with the correct protocol type and owner
+#   - What is stored in each Channel Dependency storage file ?
+# - Support multiple users via HyperSpace ?
+#   * Create Category and Users with the correct protocol type and owner
+#   - What is stored in each User Dependency storage file ?
+#
 # - Implement "ChatServer.topic_out" Dependency link ...
 #   - "ChatServer.topic_out" --[function_call]--> "ChatREPL.topic_in"
 #
 # - Add send_message() properties: timestamp, username
+#
 # - UI: CLI (REPL), TUI (Dashboard plug-in), Web
-#   - Implement "/commands", e.g "/help"
-#   - Refactor standard tty REPL ("scheme_tty.py")
-# - Support multiple channels, multiple users
-# - Security: ACLs (roles, users), encryption (shared symmetric keys) ?
+#   - Implement ":commands", e.g ":help" as dynamic plug-ins
+#   - Refactor standard tty REPL ("scheme_tty.py") to use ReplSession ?
+#
 # - Incorporate A.I Agents and Robots (real and virtual TUI/GUI)
 #   - LLM with RAG based on chat history, other information sources (tools)
+#
+# - Security: ACLs (roles, users), encryption (shared symmetric keys) ?
 
 from abc import abstractmethod
 import click
@@ -46,6 +60,7 @@ __all__ = ["ChatREPL", "ChatREPLImpl", "ChatServer", "ChatServerImpl"]
 
 _CHANNEL_NAME = "general"  # TODO: Support multiple channels (CRUD)
 _HISTORY_PATHNAME = None
+_HYPERSPACE_NAME = "chat_space"
 _VERSION = 0
 
 _ACTOR_REPL = "chat_repl"
@@ -100,7 +115,7 @@ class ChatREPLImpl(aiko.Actor):
         command = command.strip()
         if not command:
             return
-        if command in ("/exit"):
+        if command in (":exit"):
             self.repl_session.stop()
             aiko.process.terminate()
         else:
@@ -153,6 +168,9 @@ class ChatServerImpl(aiko.Actor):
         context.call_init(self, "Actor", context)
         self.share["source_file"] = f"v{_VERSION}⇒ {__file__}"
 
+        self.hyperspace = aiko.HyperSpaceImpl.create_hyperspace(
+            _HYPERSPACE_NAME)
+
     def exit(self):
         aiko.process.terminate()
 
@@ -187,7 +205,7 @@ def repl_command():
     tags = ["ec=true"]       # TODO: Add ECProducer tag before add to Registrar
     init_args = aiko.actor_args(_ACTOR_REPL, protocol=_PROTOCOL_REPL, tags=tags)
     chat = aiko.compose_instance(ChatREPLImpl, init_args)
-    chat.print('Type "/exit" to exit')
+    chat.print('Type ":exit" to exit')
     aiko.process.run()
     chat.join()  # wait until Chat ReplSession has cleaned-up
 

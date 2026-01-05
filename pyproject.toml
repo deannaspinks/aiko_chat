@@ -17,6 +17,9 @@ dependencies = [
 # "aiko_services>=0.6"
 ]
 
+[project.scripts]
+aiko_chat = "aiko_chat.chat:main"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
