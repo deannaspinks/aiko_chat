@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# ./chat_start.sh
+# ./chat_start.sh [llm]
 #
 # To Do
 # ~~~~~
@@ -10,6 +10,10 @@
 # - What is stored in each User Dependency storage file ?
 #
 # - Catch errors ... clean-up and exit gracefully
+
+if [ x"$1" == x"llm" ]; then
+  LLM_ENABLED="--llm"
+fi
 
 CHAT_SERVER_PATH=_chat_server_
 HYPERSPACE_PATH=_hyperspace_
@@ -55,7 +59,7 @@ __initialize() {
 __chat_server_run() {
   echo "### Running Chat Server"
   echo "... To stop Chat Server: aiko_chat exit"
-  aiko_chat run
+  aiko_chat run $LLM_ENABLED
 }
 
 __initialize
