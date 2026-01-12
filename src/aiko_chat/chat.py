@@ -22,6 +22,7 @@
 # To Do
 # ~~~~~
 # *** Refactor LLM and Robot hacks
+#     - Enable LLM, either ":llm_enable" or "#llm channel" message "enable" !
 #     - Separate functions
 #     - Provide simple conversational history
 #     - Dynamically loaded "channel features" ?
@@ -201,8 +202,9 @@ class ChatServer(aiko.Actor):
         pass
 
 class ChatServerImpl(aiko.Actor):
-    def __init__(self, context):
+    def __init__(self, context, llm_enabled=False):
         context.call_init(self, "Actor", context)
+        self.share["llm_enabled"] = llm_enabled
         self.share["source_file"] = f"v{_VERSION}⇒ {__file__}"
 
         self.hyperspace = aiko.HyperSpaceImpl.create_hyperspace(
@@ -239,19 +241,22 @@ class ChatServerImpl(aiko.Actor):
             is_sexp = len(sexp) >= 2 and sexp[0] == "(" and sexp[-1] == ")"
 
             if recipient == "llm":
-                from httpx import ConnectError
-                from langchain_core.output_parsers import StrOutputParser
-                from langchain_core.prompts import ChatPromptTemplate
-                from aiko_services.examples.llm.elements import llm_load
+                response = "LLM is not enabled"
+                if self.share["llm_enabled"]:
+                    from httpx import ConnectError
+                    from langchain_core.output_parsers import StrOutputParser
+                    from langchain_core.prompts import ChatPromptTemplate
+                    from aiko_services.examples.llm.elements import llm_load
 
-                SYSTEM_PROMPT = "Be brief."
-                chat_prompt = ChatPromptTemplate.from_messages([
-                    ("system", SYSTEM_PROMPT), ("user", "{input}")])
-                llm = llm_load("ollama")
-                output_parser = StrOutputParser()
+                    SYSTEM_PROMPT = "Be brief."
+                    chat_prompt = ChatPromptTemplate.from_messages([
+                        ("system", SYSTEM_PROMPT), ("user", "{input}")])
+                    llm = llm_load("ollama")
+                    output_parser = StrOutputParser()
 
-                chain = chat_prompt | llm | output_parser
-                response = chain.invoke({"input": message})  # --> str
+                    chain = chat_prompt | llm | output_parser
+                    response = chain.invoke({"input": message})  # --> str
+
                 aiko.process.message.publish(recipient_topic_out, response)
 
             if recipient == "robot" and self.robot_server:
@@ -289,7 +294,8 @@ def repl_command():
     chat.join()  # wait until Chat ReplSession has cleaned-up
 
 @main.command(name="run")
-def run_command():
+@click.option("--llm", is_flag=True, help="Enable LLM (via ollama)")
+def run_command(llm):
     """Run ChatServer backend
 
     ./chat.py run
@@ -298,6 +304,7 @@ def run_command():
     tags = ["ec=true"]       # TODO: Add ECProducer tag before add to Registrar
     init_args = aiko.actor_args(
                     _ACTOR_SERVER, protocol=_PROTOCOL_SERVER, tags=tags)
+    init_args["llm_enabled"] = llm
     chat = aiko.compose_instance(ChatServerImpl, init_args)
     aiko.process.run()
 
