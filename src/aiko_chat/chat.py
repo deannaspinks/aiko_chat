@@ -70,6 +70,7 @@ _CHANNEL_NAME = "general"  # TODO: Support multiple channels (CRUD)
 _HISTORY_PATHNAME = None
 _HYPERSPACE_NAME = "chat_space"
 _ROBOT_NAMES = ["laika", "oscar"]
+_USER = "andyg"
 _VERSION = 0
 
 _ACTOR_REPL = "chat_repl"
@@ -153,8 +154,8 @@ class ChatREPLImpl(aiko.Actor):
             self.print("general, llm, random, robot, yolo")
         else:
             if self.chat_server:
-                recipients = [self.current_channel]
                 username = ""
+                recipients = [self.current_channel]
                 self.chat_server.send_message(
                     username, recipients, command_line)
 
@@ -206,6 +207,7 @@ class ChatServerImpl(aiko.Actor):
         context.call_init(self, "Actor", context)
         self.share["llm_enabled"] = llm_enabled
         self.share["source_file"] = f"v{_VERSION}⇒ {__file__}"
+        self.share["user"] = _USER
 
         self.hyperspace = aiko.HyperSpaceImpl.create_hyperspace(
             _HYPERSPACE_NAME)
@@ -232,6 +234,17 @@ class ChatServerImpl(aiko.Actor):
 
     def send_message(self, username, recipients, message):
         self.logger.info(f"send_message({username} > {recipients}: {message})")
+
+        command_line = message.strip()
+        if command_line:
+            tokens = command_line.split(" ")
+            command = tokens[0]
+            if command == "/user":
+                if len(tokens) > 1:
+                    self.logger.info(f"Change user: {tokens[1]}")
+                    self.share["user"] = tokens[1]
+                return
+
         for recipient in recipients:
             recipient_topic_out = f"{self.topic_path}/{recipient}"
             aiko.process.message.publish(recipient_topic_out, message)
@@ -248,7 +261,7 @@ class ChatServerImpl(aiko.Actor):
                     from langchain_core.prompts import ChatPromptTemplate
                     from aiko_services.examples.llm.elements import llm_load
 
-                    SYSTEM_PROMPT = "Be brief."
+                    SYSTEM_PROMPT = "Be terse"
                     chat_prompt = ChatPromptTemplate.from_messages([
                         ("system", SYSTEM_PROMPT), ("user", "{input}")])
                     llm = llm_load("ollama")
@@ -264,6 +277,9 @@ class ChatServerImpl(aiko.Actor):
                     aiko.process.message.publish(self.robot_server_topic, sexp)
                 else:
                     self.robot_server.action(message)
+
+            if recipient == "yolo":
+                pass
 
 # --------------------------------------------------------------------------- #
 # Aiko Chat CLI: Distributed Actor commands
