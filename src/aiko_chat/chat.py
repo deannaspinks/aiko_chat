@@ -57,6 +57,7 @@
 
 from abc import abstractmethod
 import click
+import os
 import signal
 from typing import Iterable, List
 
@@ -66,11 +67,11 @@ from aiko_chat import FileHistoryStore, ReplSession
 
 __all__ = ["ChatREPL", "ChatREPLImpl", "ChatServer", "ChatServerImpl"]
 
+_ADMIN = "andyg"
 _CHANNEL_NAME = "general"  # TODO: Support multiple channels (CRUD)
 _HISTORY_PATHNAME = None
 _HYPERSPACE_NAME = "chat_space"
 _ROBOT_NAMES = ["laika", "oscar"]
-_USER = "andyg"
 _VERSION = 0
 
 _ACTOR_REPL = "chat_repl"
@@ -102,12 +103,13 @@ class ChatREPL(aiko.Actor):
     aiko.Interface.default("ChatREPL", "aiko_chat.chat.ChatREPLImpl")
 
 class ChatREPLImpl(aiko.Actor):
-    def __init__(self, context):
+    def __init__(self, context, username=None):
         context.call_init(self, "Actor", context)
         self.share["source_file"] = f"v{_VERSION}⇒ {__file__}"
 
         self.chat_server = None
-
+        
+        self.username = username or os.environ.get("USER")
         self.current_channel = _CHANNEL_NAME
         self.history_store = None
         if _HISTORY_PATHNAME:
@@ -154,10 +156,10 @@ class ChatREPLImpl(aiko.Actor):
             self.print("general, llm, random, robot, yolo")
         else:
             if self.chat_server:
-                username = ""
+                admin = ""
                 recipients = [self.current_channel]
                 self.chat_server.send_message(
-                    username, recipients, command_line)
+                    self.username, recipients, command_line)
 
     def discovery_add_handler(self, service_details, service):
         self.print(f"Connected {service_details[1]}: {service_details[0]}")
@@ -207,7 +209,7 @@ class ChatServerImpl(aiko.Actor):
         context.call_init(self, "Actor", context)
         self.share["llm_enabled"] = llm_enabled
         self.share["source_file"] = f"v{_VERSION}⇒ {__file__}"
-        self.share["user"] = _USER
+        self.share["admin"] = _ADMIN
 
         self.hyperspace = aiko.HyperSpaceImpl.create_hyperspace(
             _HYPERSPACE_NAME)
@@ -239,10 +241,10 @@ class ChatServerImpl(aiko.Actor):
         if command_line:
             tokens = command_line.split(" ")
             command = tokens[0]
-            if command == "/user":
+            if command == "/admin":
                 if len(tokens) > 1:
-                    self.logger.info(f"Change user: {tokens[1]}")
-                    self.share["user"] = tokens[1]
+                    self.logger.info(f"Change admin: {tokens[1]}")
+                    self.share["admin"] = tokens[1]  # TODO: add EC update
                 return
 
         for recipient in recipients:
@@ -297,7 +299,8 @@ def exit_command():
     aiko.process.run()
 
 @main.command(name="repl")
-def repl_command():
+@click.argument("username", type=str, required=False, default=None)
+def repl_command(username):
     """Run Chat CLI REPL frontend
 
     ./chat.py repl
@@ -305,6 +308,7 @@ def repl_command():
 
     tags = ["ec=true"]       # TODO: Add ECProducer tag before add to Registrar
     init_args = aiko.actor_args(_ACTOR_REPL, protocol=_PROTOCOL_REPL, tags=tags)
+    init_args["username"] = username
     chat = aiko.compose_instance(ChatREPLImpl, init_args)
     aiko.process.run()
     chat.join()  # wait until Chat ReplSession has cleaned-up
